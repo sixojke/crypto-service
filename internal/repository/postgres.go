@@ -8,7 +8,9 @@ import (
 )
 
 type Currency interface {
-	Add(currency *domain.Currency) error
+	AddTrackedCurrency(currency *domain.Currency) error
+	SavePrice(price *domain.Price) error
+	GetTrackedCurrencies() ([]domain.Currency, error)
 }
 
 type CurrencyPostgres struct {
@@ -20,7 +22,7 @@ func NewCurrencyPostgres(db *sqlx.DB) Currency {
 	return &CurrencyPostgres{DB: db}
 }
 
-func (r *CurrencyPostgres) Add(currency *domain.Currency) error {
+func (r *CurrencyPostgres) AddTrackedCurrency(currency *domain.Currency) error {
 	query := `INSERT INTO tracked_currencies (symbol) VALUES ($1)`
 
 	if _, err := r.DB.Exec(query, currency.Symbol); err != nil {
@@ -28,4 +30,38 @@ func (r *CurrencyPostgres) Add(currency *domain.Currency) error {
 	}
 
 	return nil
+}
+
+func (r *CurrencyPostgres) SavePrice(price *domain.Price) error {
+	query := `
+		INSERT INTO 
+			currency_prices
+		(
+			symbol,
+			price,
+			timestamp
+		) VALUES ($1, $2, $3)
+	`
+
+	if _, err := r.DB.Exec(query, price.Currency.Symbol, price.Price, price.Timestamp); err != nil {
+		return fmt.Errorf("failed to save price: %v", err)
+	}
+
+	return nil
+}
+
+func (r *CurrencyPostgres) GetTrackedCurrencies() ([]domain.Currency, error) {
+	query := `
+		SELECT
+			symbol
+		FROM 
+			tracked_currencies
+	`
+
+	currencies := make([]domain.Currency, 0)
+	if err := r.DB.Select(&currencies, query); err != nil {
+		return []domain.Currency{}, fmt.Errorf("failed to get tracked currencies: %v", err)
+	}
+
+	return currencies, nil
 }

@@ -5,6 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
+	"time"
+
+	"github.com/sixojke/crypto-service/internal/domain"
+	"github.com/sixojke/crypto-service/pkg/logger"
 )
 
 const getPriceAPI = "https://api.binance.com/api/v3/ticker/price?symbol="
@@ -15,8 +20,9 @@ type Price struct {
 }
 
 // GetPrice retrieves the current price of a cryptocurrency from Binance.
-func GetPrice(ctx context.Context, symbol string) (*Price, error) {
-	url := getPriceAPI + symbol
+func GetPrice(ctx context.Context, symbol string) (*domain.Price, error) {
+	url := getPriceAPI + strings.ToUpper(symbol)
+	logger.Error(url)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -39,5 +45,9 @@ func GetPrice(ctx context.Context, symbol string) (*Price, error) {
 		return nil, fmt.Errorf("decoding response: %w", err)
 	}
 
-	return &price, nil
+	return &domain.Price{
+		Currency:  domain.Currency{Symbol: price.Symbol},
+		Price:     price.Price,
+		Timestamp: time.Now(),
+	}, nil
 }

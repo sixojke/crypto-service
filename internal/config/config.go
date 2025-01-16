@@ -10,9 +10,10 @@ import (
 )
 
 type Config struct {
-	HTTPServer HTTPServer `mapstructure:"http_server"`
-	Postgres   Postgres   `mapstructure:"postgres"`
-	Logger     Logger     `mapstructure:"logger"`
+	HTTPServer      HTTPServer      `mapstructure:"http_server"`
+	Postgres        Postgres        `mapstructure:"postgres"`
+	Logger          Logger          `mapstructure:"logger"`
+	CurrencyService CurrencyService `mapstructure:"currency_service"`
 }
 
 type HTTPServer struct {
@@ -37,6 +38,10 @@ type Postgres struct {
 
 type Logger struct {
 	LogLevel int `mapstructure:"log_level"`
+}
+
+type CurrencyService struct {
+	UpdatesPerSercond int `mapstructure:"updates_per_second"`
 }
 
 func Init(configPaths []string, envFile string) (*Config, error) {

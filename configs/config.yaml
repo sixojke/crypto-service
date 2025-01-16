@@ -22,3 +22,5 @@ logger:
   # 6 - no level
   # 7 - disabled
   log_level: 0
+currency_service:
+  updates_per_second: 2

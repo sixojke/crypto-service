@@ -43,7 +43,9 @@ func main() {
 	repo := repository.NewCurrencyPostgres(postgres)
 
 	// Init service
-	service := service.NewCurrencyService(repo)
+	service := service.NewCurrencyService(repo, cfg.CurrencyService)
+
+	go service.LaunchCurrencyTracking()
 
 	// Init handler
 	handler := delivery.NewHandler(service)

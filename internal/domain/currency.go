@@ -1,13 +1,16 @@
 package domain
 
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 var (
 	ErrSybmolIsEmpty = errors.New("symbol is empty")
 )
 
 type Currency struct {
-	Symbol string
+	Symbol string `db:"symbol"`
 }
 
 func NewCurrency(symbol string) (*Currency, error) {
@@ -16,4 +19,10 @@ func NewCurrency(symbol string) (*Currency, error) {
 	}
 
 	return &Currency{Symbol: symbol}, nil
+}
+
+type Price struct {
+	Currency  Currency
+	Price     float64
+	Timestamp time.Time
 }
