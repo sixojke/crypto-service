@@ -7,6 +7,8 @@ import (
 
 	"github.com/golang-migrate/migrate"
 	"github.com/golang-migrate/migrate/database/postgres"
+	_ "github.com/golang-migrate/migrate/source/file"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/sixojke/crypto-service/internal/config"
 	log "github.com/sixojke/crypto-service/pkg/logger"
@@ -63,7 +65,7 @@ func migratePostgres(db *sqlx.DB, migrationsPath string) error {
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://"+migrationsPath,
+		"file:/"+migrationsPath,
 		"postgres", driver)
 
 	if err != nil {

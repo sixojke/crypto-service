@@ -6,6 +6,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/sixojke/crypto-service/internal/config"
+	"github.com/sixojke/crypto-service/pkg/database"
 	"github.com/sixojke/crypto-service/pkg/logger"
 )
 
@@ -19,6 +20,13 @@ func main() {
 	// Init logger
 	enableLogger(cfg.Logger.LogLevel)
 
+	// Init postgres
+	postgres, err := database.NewPostgresDB(cfg.Postgres)
+	if err != nil {
+		logger.Fatalf("error connect postgres db: %v", err)
+	}
+	defer postgres.Close()
+	logger.Info("[POSTGRES] Connection successful")
 }
 
 func enableLogger(logLevel int) {
