@@ -3,14 +3,23 @@ package config
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Postgres Postgres `mapstructure:"postgres"`
-	Logger   Logger
+	HTTPServer HTTPServer
+	Postgres   Postgres `mapstructure:"postgres"`
+	Logger     Logger
+}
+
+type HTTPServer struct {
+	Port               string        `mapstructure:"port"`
+	ReadTimeout        time.Duration `mapstructure:"read_timeout"`
+	WriteTimeout       time.Duration `mapstructure:"write_timeout"`
+	MaxHeaderMegabytes int           `mapstructure:"max_header_megabytes"`
 }
 
 type Postgres struct {
