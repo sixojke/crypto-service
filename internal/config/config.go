@@ -10,9 +10,9 @@ import (
 )
 
 type Config struct {
-	HTTPServer HTTPServer
-	Postgres   Postgres `mapstructure:"postgres"`
-	Logger     Logger
+	HTTPServer HTTPServer `mapstructure:"http_server"`
+	Postgres   Postgres   `mapstructure:"postgres"`
+	Logger     Logger     `mapstructure:"logger"`
 }
 
 type HTTPServer struct {
