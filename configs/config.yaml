@@ -4,8 +4,8 @@ http_server:
     write_timeout: 10s
     max_header_megabytes: 1
 postgres:
-  host: "localhost"
-  port: "5445"
+  host: "postgres_db"
+  port: "5432"
   sslmode: "disable"
   max_open_conns: 10
   max_idle_conns: 5
