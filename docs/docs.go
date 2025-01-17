@@ -14,7 +14,71 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/currency/add": {
+            "post": {
+                "description": "Adds a currency to the tracking list.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "currency"
+                ],
+                "summary": "Add currency to tracking",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Currency symbol (e.g., BTCUSDT)",
+                        "name": "symbol",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Currency added successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request (e.g., invalid symbol)",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.Response"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "delivery.Response": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/delivery.errorResponse"
+                },
+                "response": {}
+            }
+        },
+        "delivery.errorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it

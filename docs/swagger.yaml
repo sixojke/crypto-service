@@ -1,9 +1,50 @@
 basePath: /api
+definitions:
+  delivery.Response:
+    properties:
+      error:
+        $ref: '#/definitions/delivery.errorResponse'
+      response: {}
+    type: object
+  delivery.errorResponse:
+    properties:
+      code:
+        type: integer
+      text:
+        type: string
+    type: object
 host: localhost:8081
 info:
   contact: {}
   description: REST API
   title: Crypto service API
   version: "1.0"
-paths: {}
+paths:
+  /currency/add:
+    post:
+      consumes:
+      - application/json
+      description: Adds a currency to the tracking list.
+      parameters:
+      - description: Currency symbol (e.g., BTCUSDT)
+        in: query
+        name: symbol
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Currency added successfully
+        "400":
+          description: Bad Request (e.g., invalid symbol)
+          schema:
+            $ref: '#/definitions/delivery.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/delivery.Response'
+      summary: Add currency to tracking
+      tags:
+      - currency
 swagger: "2.0"

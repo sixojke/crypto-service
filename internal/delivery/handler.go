@@ -24,6 +24,10 @@ func (h *Handler) Init() *gin.Engine {
 	// Create a new router
 	router := gin.Default()
 
+	router.Use(
+		corsMiddleware,
+	)
+
 	router.GET("/api/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.GET("/ping", h.ping)

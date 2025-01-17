@@ -16,10 +16,21 @@ func (h *Handler) initAPI(router *gin.Engine) {
 	api := router.Group("/api")
 
 	currency := api.Group("/currency")
-	currency.POST("/add", h.add)
+	currency.POST("/add", h.addCurrency)
 }
 
-func (h *Handler) add(c *gin.Context) {
+// @Summary Add currency to tracking
+// @Tags currency
+// @Description Adds a currency to the tracking list.
+// @ModuleID addCurrency
+// @Accept json
+// @Produce json
+// @Param symbol query string true "Currency symbol (e.g., BTCUSDT)"
+// @Success 200 {object} nil "Currency added successfully"
+// @Failure 400 {object} Response "Bad Request (e.g., invalid symbol)"
+// @Failure 500 {object} Response "Internal Server Error"
+// @Router /currency/add [post]
+func (h *Handler) addCurrency(c *gin.Context) {
 	symbol := c.Query("symbol")
 
 	if err := h.service.AddToTracking(symbol); err != nil {
