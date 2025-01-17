@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -15,6 +17,7 @@ type Currency interface {
 	SavePrice(price *domain.Price) error
 	GetTrackedCurrencies() ([]domain.Currency, error)
 	RemoveFromTracking(symbol string) error
+	GetPriceByTimestamp(symbol string, timestamp time.Time) (*domain.Price, error)
 }
 
 type CurrencyPostgres struct {
@@ -53,7 +56,7 @@ func (r *CurrencyPostgres) SavePrice(price *domain.Price) error {
 		) VALUES ($1, $2, $3)
 	`
 
-	if _, err := r.DB.Exec(query, price.Currency.Symbol, price.Price, price.Timestamp); err != nil {
+	if _, err := r.DB.Exec(query, price.Currency, price.Price, price.Timestamp); err != nil {
 		logger.Error(err.Error())
 		return fmt.Errorf("failed to save price: %v", err)
 	}
@@ -92,4 +95,54 @@ func (r *CurrencyPostgres) RemoveFromTracking(symbol string) error {
 	}
 
 	return nil
+}
+
+func (r *CurrencyPostgres) GetPriceByTimestamp(symbol string, timestamp time.Time) (*domain.Price, error) {
+	query := `
+		SELECT 
+			symbol, price, timestamp 
+		FROM 
+			currency_prices
+		WHERE 
+			symbol = $1 
+			AND timestamp <= $2
+		ORDER BY 
+			timestamp DESC
+		LIMIT 1;
+	`
+
+	var price domain.Price
+	if err := r.DB.Get(&price, query, symbol, timestamp); err != nil {
+		// If no values ​​were found before the requested timestamp, look after
+		if err == sql.ErrNoRows {
+			query = `
+				SELECT 
+					symbol, price, timestamp
+				FROM 
+					currency_prices
+				WHERE symbol = $1 AND timestamp > $2
+				ORDER BY 
+					timestamp ASC
+				LIMIT 1;
+			`
+
+			if err := r.DB.Get(&price, query, symbol, timestamp); err != nil {
+				// Data does not exist for this currency
+				if err == sql.ErrNoRows {
+					return nil, domain.ErrNoDataOnThisCurrency
+				}
+
+				logger.Error(err.Error())
+				return nil, fmt.Errorf("failed to get price: %v", err)
+			} else {
+				return &price, nil
+			}
+
+		} else {
+			logger.Error(err.Error())
+			return nil, fmt.Errorf("failed to get price: %v", err)
+		}
+	}
+
+	return &price, nil
 }

@@ -47,6 +47,40 @@ paths:
       summary: Add currency to tracking
       tags:
       - currency
+  /currency/price:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves the price of a specific currency at a given timestamp.
+      parameters:
+      - description: Currency symbol (e.g., BTCUSDT)
+        in: query
+        name: symbol
+        required: true
+        type: string
+      - description: Currency symbol (e.g., BTCUSDT)
+        in: query
+        name: timestamp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Price retrieved successfully
+          schema:
+            $ref: '#/definitions/delivery.Response'
+        "400":
+          description: Response "Bad Request (e.g., invalid symbol)
+          schema:
+            $ref: '#/definitions/delivery.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/delivery.Response'
+      summary: Get price of a currency at a specific timestamp
+      tags:
+      - currency
   /currency/remove:
     delete:
       consumes:

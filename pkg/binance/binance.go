@@ -10,13 +10,13 @@ import (
 const getPriceAPI = "https://api.binance.com/api/v3/ticker/price?symbol="
 
 type Price struct {
-	Symbol string  `json:"symbol"`
-	Price  float64 `json:"price,string"`
+	Currency string  `json:"symbol"`
+	Price    float64 `json:"price,string"`
 }
 
 // GetPrice retrieves the current price of a cryptocurrency from Binance.
-func GetPrice(ctx context.Context, symbol string) (*Price, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, generateGetPriceUrl(symbol), nil)
+func GetPrice(ctx context.Context, currency string) (*Price, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, generateGetPriceUrl(currency), nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
@@ -38,13 +38,13 @@ func GetPrice(ctx context.Context, symbol string) (*Price, error) {
 	}
 
 	return &Price{
-		Symbol: symbol,
-		Price:  price.Price,
+		Currency: currency,
+		Price:    price.Price,
 	}, nil
 }
 
-func CheckSymbol(symbol string) (bool, error) {
-	resp, err := http.Get(generateGetPriceUrl(symbol))
+func CheckCurrency(currency string) (bool, error) {
+	resp, err := http.Get(generateGetPriceUrl(currency))
 	if err != nil {
 		return false, fmt.Errorf("creating request: %w", err)
 	}
@@ -57,6 +57,6 @@ func CheckSymbol(symbol string) (bool, error) {
 	return true, nil
 }
 
-func generateGetPriceUrl(symbol string) string {
-	return getPriceAPI + symbol
+func generateGetPriceUrl(currency string) string {
+	return getPriceAPI + currency
 }

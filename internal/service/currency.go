@@ -50,6 +50,10 @@ func (s *CurrencyService) RemoveFromTracking(symbol string) error {
 	return s.repo.RemoveFromTracking(strings.ToUpper(symbol))
 }
 
+func (s *CurrencyService) GetPriceByTimestamp(symbol string, unixTimestamp int64) (*domain.Price, error) {
+	return s.repo.GetPriceByTimestamp(strings.ToUpper(symbol), time.Unix(unixTimestamp, 0))
+}
+
 // LaunchCurrencyTracking starts the process of tracking currency prices.
 func (s *CurrencyService) LaunchCurrencyTracking() {
 	currencies, err := s.repo.GetTrackedCurrencies()
@@ -91,9 +95,7 @@ func (s *CurrencyService) LaunchCurrencyTracking() {
 				}
 
 				if err := s.repo.SavePrice(&domain.Price{
-					Currency: domain.Currency{
-						Symbol: price.Symbol,
-					},
+					Currency:  price.Currency,
 					Price:     price.Price,
 					Timestamp: time.Now(),
 				}); err != nil {

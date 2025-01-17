@@ -10,8 +10,10 @@ import (
 )
 
 var (
-	ErrSybmolIsEmpty       = errors.New("symbol is empty")
-	ErrSymbolDoesNotExists = errors.New("symbol does not exists")
+	ErrSybmolIsEmpty        = errors.New("symbol is empty")
+	ErrSymbolDoesNotExists  = errors.New("symbol does not exists")
+	ErrNoDataOnThisCurrency = errors.New("no data on this currency")
+	ErrInvalidTimestamp     = errors.New("invalid timestamp")
 )
 
 type Currency struct {
@@ -25,7 +27,7 @@ func NewCurrency(symbol string) (*Currency, error) {
 
 	upperSymbol := strings.ToUpper(symbol)
 
-	ok, err := binance.CheckSymbol(upperSymbol)
+	ok, err := binance.CheckCurrency(upperSymbol)
 	if err != nil {
 		logger.Error(err.Error())
 		return nil, err
@@ -39,7 +41,7 @@ func NewCurrency(symbol string) (*Currency, error) {
 }
 
 type Price struct {
-	Currency  Currency
-	Price     float64
-	Timestamp time.Time
+	Currency  string    `db:"symbol"`
+	Price     float64   `db:"price"`
+	Timestamp time.Time `db:"timestamp"`
 }
