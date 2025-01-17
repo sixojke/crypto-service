@@ -1,9 +1,11 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	"github.com/sixojke/crypto-service/internal/domain"
 )
 
@@ -26,6 +28,11 @@ func (r *CurrencyPostgres) AddTrackedCurrency(currency *domain.Currency) error {
 	query := `INSERT INTO tracked_currencies (symbol) VALUES ($1)`
 
 	if _, err := r.DB.Exec(query, currency.Symbol); err != nil {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) && pqErr.Code == "23505" {
+			return nil
+		}
+
 		return fmt.Errorf("failed to add currency: %v", err)
 	}
 
