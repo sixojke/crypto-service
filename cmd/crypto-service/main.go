@@ -21,6 +21,12 @@ import (
 	"github.com/sixojke/crypto-service/pkg/logger"
 )
 
+// @title Crypto service API
+// @version 1.0
+// @description REST API
+
+// @host localhost:8081
+// @BasePath /api
 func main() {
 	// Init config
 	cfg, err := config.Init([]string{"configs"}, ".env")

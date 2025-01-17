@@ -13,8 +13,9 @@ const (
 )
 
 func (h *Handler) initAPI(router *gin.Engine) {
-	currency := router.Group("/currency")
+	api := router.Group("/api")
 
+	currency := api.Group("/currency")
 	currency.POST("/add", h.add)
 }
 

@@ -4,7 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/sixojke/crypto-service/docs"
 	"github.com/sixojke/crypto-service/internal/service"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
@@ -20,6 +23,8 @@ func NewHandler(service *service.CurrencyService) *Handler {
 func (h *Handler) Init() *gin.Engine {
 	// Create a new router
 	router := gin.Default()
+
+	router.GET("/api/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.GET("/ping", h.ping)
 
