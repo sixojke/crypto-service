@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -47,9 +48,28 @@ func (s *CurrencyService) AddToTracking(symbol string) error {
 
 // RemoveFromTracking removes a currency from the tracking list.
 func (s *CurrencyService) RemoveFromTracking(symbol string) error {
-	return s.repo.RemoveFromTracking(strings.ToUpper(symbol))
+	upperSymbol := strings.ToUpper(symbol)
+
+	ok, err := s.repo.RemoveFromTracking(strings.ToUpper(upperSymbol))
+	if err != nil {
+		return err
+	}
+
+	logger.Errorf("%v", trackedCurrencies)
+	if ok {
+		for i, cur := range trackedCurrencies {
+			if upperSymbol == cur.Symbol {
+				trackedCurrencies = slices.Delete(trackedCurrencies, i, i+1)
+				break
+			}
+		}
+	}
+	logger.Errorf("%v", trackedCurrencies)
+
+	return nil
 }
 
+// GetPriceByTimestamp retrieves the price for the given symbol at the specified Unix timestamp.
 func (s *CurrencyService) GetPriceByTimestamp(symbol string, unixTimestamp int64) (*domain.Price, error) {
 	return s.repo.GetPriceByTimestamp(strings.ToUpper(symbol), time.Unix(unixTimestamp, 0))
 }

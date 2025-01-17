@@ -16,7 +16,7 @@ type Currency interface {
 	AddTrackedCurrency(currency *domain.Currency) error
 	SavePrice(price *domain.Price) error
 	GetTrackedCurrencies() ([]domain.Currency, error)
-	RemoveFromTracking(symbol string) error
+	RemoveFromTracking(symbol string) (bool, error)
 	GetPriceByTimestamp(symbol string, timestamp time.Time) (*domain.Price, error)
 }
 
@@ -35,7 +35,7 @@ func (r *CurrencyPostgres) AddTrackedCurrency(currency *domain.Currency) error {
 	if _, err := r.DB.Exec(query, currency.Symbol); err != nil {
 		var pqErr *pq.Error
 		if errors.As(err, &pqErr) && pqErr.Code == "23505" {
-			return nil
+			return domain.ErrDuplicateCurrency
 		}
 
 		logger.Error(err.Error())
@@ -81,7 +81,7 @@ func (r *CurrencyPostgres) GetTrackedCurrencies() ([]domain.Currency, error) {
 	return currencies, nil
 }
 
-func (r *CurrencyPostgres) RemoveFromTracking(symbol string) error {
+func (r *CurrencyPostgres) RemoveFromTracking(symbol string) (bool, error) {
 	query := `
 	DELETE FROM 
 		tracked_currencies
@@ -89,12 +89,18 @@ func (r *CurrencyPostgres) RemoveFromTracking(symbol string) error {
 		symbol = $1
 	`
 
-	if _, err := r.DB.Exec(query, symbol); err != nil {
+	result, err := r.DB.Exec(query, symbol)
+	if err != nil {
 		logger.Error(err.Error())
-		return fmt.Errorf("failed to remove currency from tracking: symbol=%v", symbol)
+		return false, fmt.Errorf("failed to remove currency from tracking: symbol=%v", symbol)
 	}
 
-	return nil
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (r *CurrencyPostgres) GetPriceByTimestamp(symbol string, timestamp time.Time) (*domain.Price, error) {

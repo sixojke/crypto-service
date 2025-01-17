@@ -14,6 +14,7 @@ var (
 	ErrSymbolDoesNotExists  = errors.New("symbol does not exists")
 	ErrNoDataOnThisCurrency = errors.New("no data on this currency")
 	ErrInvalidTimestamp     = errors.New("invalid timestamp")
+	ErrDuplicateCurrency    = errors.New("dublicate currency")
 )
 
 type Currency struct {

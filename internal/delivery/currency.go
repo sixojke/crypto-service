@@ -37,7 +37,9 @@ func (h *Handler) addCurrency(c *gin.Context) {
 	symbol := c.Query("symbol")
 
 	if err := h.service.AddToTracking(symbol); err != nil {
-		if errors.Is(err, domain.ErrSybmolIsEmpty) || errors.Is(err, domain.ErrSymbolDoesNotExists) {
+		if errors.Is(err, domain.ErrSybmolIsEmpty) ||
+			errors.Is(err, domain.ErrSymbolDoesNotExists) ||
+			errors.Is(err, domain.ErrDuplicateCurrency) {
 			errResponse(c, http.StatusBadRequest, err.Error(), err.Error())
 
 			return
