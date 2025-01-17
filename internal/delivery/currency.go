@@ -21,8 +21,8 @@ func (h *Handler) initAPI(router *gin.Engine) {
 func (h *Handler) add(c *gin.Context) {
 	symbol := c.Query("symbol")
 
-	if err := h.service.Add(symbol); err != nil {
-		if errors.Is(err, domain.ErrSybmolIsEmpty) {
+	if err := h.service.AddToTracking(symbol); err != nil {
+		if errors.Is(err, domain.ErrSybmolIsEmpty) || errors.Is(err, domain.ErrSymbolDoesNotExists) {
 			errResponse(c, http.StatusBadRequest, err.Error(), err.Error())
 
 			return

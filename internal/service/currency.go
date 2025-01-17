@@ -8,7 +8,7 @@ import (
 	"github.com/sixojke/crypto-service/internal/config"
 	"github.com/sixojke/crypto-service/internal/domain"
 	"github.com/sixojke/crypto-service/internal/repository"
-	"github.com/sixojke/crypto-service/pkg/client"
+	"github.com/sixojke/crypto-service/pkg/binance"
 	"github.com/sixojke/crypto-service/pkg/logger"
 )
 
@@ -26,7 +26,8 @@ func NewCurrencyService(repo repository.Currency, config config.CurrencyService)
 	}
 }
 
-func (s *CurrencyService) Add(symbol string) error {
+// AddToTracking adds a new currency symbol to the watch list
+func (s *CurrencyService) AddToTracking(symbol string) error {
 	currency, err := domain.NewCurrency(symbol)
 	if err != nil {
 		return err
@@ -37,7 +38,7 @@ func (s *CurrencyService) Add(symbol string) error {
 	}
 
 	trackedCurrencies = append(trackedCurrencies, domain.Currency{
-		Symbol: symbol,
+		Symbol: currency.Symbol,
 	})
 
 	return nil
@@ -73,7 +74,7 @@ func (s *CurrencyService) LaunchCurrencyTracking() {
 				ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 				defer cancel()
 
-				price, err := client.GetPrice(ctx, currency.Symbol)
+				price, err := binance.GetPrice(ctx, currency.Symbol)
 				if err != nil {
 					if ctx.Err() != nil {
 						logger.Warnf("GetPrice for %s timed out or canceled: %v", currency.Symbol, ctx.Err())
@@ -83,7 +84,13 @@ func (s *CurrencyService) LaunchCurrencyTracking() {
 					return
 				}
 
-				if err := s.repo.SavePrice(price); err != nil {
+				if err := s.repo.SavePrice(&domain.Price{
+					Currency: domain.Currency{
+						Symbol: price.Symbol,
+					},
+					Price:     price.Price,
+					Timestamp: time.Now(),
+				}); err != nil {
 					logger.Errorf("Error getting price for %s: %v", currency.Symbol, err)
 					return
 				}

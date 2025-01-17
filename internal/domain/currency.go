@@ -2,11 +2,15 @@ package domain
 
 import (
 	"errors"
+	"strings"
 	"time"
+
+	"github.com/sixojke/crypto-service/pkg/binance"
 )
 
 var (
-	ErrSybmolIsEmpty = errors.New("symbol is empty")
+	ErrSybmolIsEmpty       = errors.New("symbol is empty")
+	ErrSymbolDoesNotExists = errors.New("symbol does not exists")
 )
 
 type Currency struct {
@@ -18,7 +22,18 @@ func NewCurrency(symbol string) (*Currency, error) {
 		return nil, ErrSybmolIsEmpty
 	}
 
-	return &Currency{Symbol: symbol}, nil
+	upperSymbol := strings.ToUpper(symbol)
+
+	ok, err := binance.CheckSymbol(upperSymbol)
+	if err != nil {
+		return nil, err
+	}
+
+	if !ok {
+		return nil, ErrSymbolDoesNotExists
+	}
+
+	return &Currency{Symbol: upperSymbol}, nil
 }
 
 type Price struct {
