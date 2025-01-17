@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"time"
 
@@ -42,6 +43,11 @@ func (s *CurrencyService) AddToTracking(symbol string) error {
 	})
 
 	return nil
+}
+
+// RemoveFromTracking removes a currency from the tracking list.
+func (s *CurrencyService) RemoveFromTracking(symbol string) error {
+	return s.repo.RemoveFromTracking(strings.ToUpper(symbol))
 }
 
 // LaunchCurrencyTracking starts the process of tracking currency prices.

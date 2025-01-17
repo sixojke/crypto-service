@@ -3,6 +3,7 @@ package delivery
 import (
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/sixojke/crypto-service/docs"
 	"github.com/sixojke/crypto-service/internal/service"
@@ -24,9 +25,12 @@ func (h *Handler) Init() *gin.Engine {
 	// Create a new router
 	router := gin.Default()
 
-	router.Use(
-		corsMiddleware,
-	)
+	config := cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"GET", "POST", "DELETE", "OPTIONS"},
+	}
+
+	router.Use(cors.New(config))
 
 	router.GET("/api/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

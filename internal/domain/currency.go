@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/sixojke/crypto-service/pkg/binance"
+	"github.com/sixojke/crypto-service/pkg/logger"
 )
 
 var (
@@ -26,6 +27,7 @@ func NewCurrency(symbol string) (*Currency, error) {
 
 	ok, err := binance.CheckSymbol(upperSymbol)
 	if err != nil {
+		logger.Error(err.Error())
 		return nil, err
 	}
 

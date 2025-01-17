@@ -47,4 +47,27 @@ paths:
       summary: Add currency to tracking
       tags:
       - currency
+  /currency/remove:
+    delete:
+      consumes:
+      - application/json
+      description: Removes a currency from the tracking list.
+      parameters:
+      - description: Currency symbol (e.g., BTCUSDT)
+        in: query
+        name: symbol
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Currency added successfully
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/delivery.Response'
+      summary: Remove currency from tracking
+      tags:
+      - currency
 swagger: "2.0"

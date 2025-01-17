@@ -7,12 +7,14 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"github.com/sixojke/crypto-service/internal/domain"
+	"github.com/sixojke/crypto-service/pkg/logger"
 )
 
 type Currency interface {
 	AddTrackedCurrency(currency *domain.Currency) error
 	SavePrice(price *domain.Price) error
 	GetTrackedCurrencies() ([]domain.Currency, error)
+	RemoveFromTracking(symbol string) error
 }
 
 type CurrencyPostgres struct {
@@ -33,6 +35,7 @@ func (r *CurrencyPostgres) AddTrackedCurrency(currency *domain.Currency) error {
 			return nil
 		}
 
+		logger.Error(err.Error())
 		return fmt.Errorf("failed to add currency: %v", err)
 	}
 
@@ -51,6 +54,7 @@ func (r *CurrencyPostgres) SavePrice(price *domain.Price) error {
 	`
 
 	if _, err := r.DB.Exec(query, price.Currency.Symbol, price.Price, price.Timestamp); err != nil {
+		logger.Error(err.Error())
 		return fmt.Errorf("failed to save price: %v", err)
 	}
 
@@ -67,8 +71,25 @@ func (r *CurrencyPostgres) GetTrackedCurrencies() ([]domain.Currency, error) {
 
 	currencies := make([]domain.Currency, 0)
 	if err := r.DB.Select(&currencies, query); err != nil {
+		logger.Error(err.Error())
 		return []domain.Currency{}, fmt.Errorf("failed to get tracked currencies: %v", err)
 	}
 
 	return currencies, nil
+}
+
+func (r *CurrencyPostgres) RemoveFromTracking(symbol string) error {
+	query := `
+	DELETE FROM 
+		tracked_currencies
+	WHERE
+		symbol = $1
+	`
+
+	if _, err := r.DB.Exec(query, symbol); err != nil {
+		logger.Error(err.Error())
+		return fmt.Errorf("failed to remove currency from tracking: symbol=%v", symbol)
+	}
+
+	return nil
 }

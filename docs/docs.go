@@ -55,6 +55,41 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/currency/remove": {
+            "delete": {
+                "description": "Removes a currency from the tracking list.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "currency"
+                ],
+                "summary": "Remove currency from tracking",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Currency symbol (e.g., BTCUSDT)",
+                        "name": "symbol",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Currency added successfully"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

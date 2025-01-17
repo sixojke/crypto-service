@@ -17,6 +17,7 @@ func (h *Handler) initAPI(router *gin.Engine) {
 
 	currency := api.Group("/currency")
 	currency.POST("/add", h.addCurrency)
+	currency.DELETE("/remove", h.removeCurrency)
 }
 
 // @Summary Add currency to tracking
@@ -40,6 +41,28 @@ func (h *Handler) addCurrency(c *gin.Context) {
 			return
 		}
 
+		errResponse(c, http.StatusInternalServerError, err.Error(), err500)
+
+		return
+	}
+
+	newResponse(c, http.StatusOK, nil)
+}
+
+// @Summary Remove currency from tracking
+// @Tags currency
+// @Description Removes a currency from the tracking list.
+// @ModuleID removeCurrency
+// @Accept json
+// @Produce json
+// @Param symbol query string true "Currency symbol (e.g., BTCUSDT)"
+// @Success 200 {object} nil "Currency added successfully"
+// @Failure 500 {object} Response "Internal Server Error"
+// @Router /currency/remove [delete]
+func (h *Handler) removeCurrency(c *gin.Context) {
+	symbol := c.Query("symbol")
+
+	if err := h.service.RemoveFromTracking(symbol); err != nil {
 		errResponse(c, http.StatusInternalServerError, err.Error(), err500)
 
 		return
